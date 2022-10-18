@@ -1,18 +1,25 @@
 package main
 
 import (
-	"net/http"
-
+	"github.com/ezkahan/go-rest/config"
+	"github.com/ezkahan/go-rest/controller"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
+
+var (
+	db             *gorm.DB                  = config.MysqlConnection()
+	authController controller.AuthController = controller.NewAuthController()
 )
 
 func main() {
 	r := gin.Default()
-	r.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "OK",
-		})
-	})
+
+	authRoutes := r.Group("api/auth")
+	{
+		authRoutes.POST("/login", authController.Login)
+		authRoutes.POST("/register", authController.Register)
+	}
 
 	r.Run(":8090")
 }

@@ -2,13 +2,20 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 func MysqlConnection() *gorm.DB {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	dbHost := os.Getenv("DB_HOST")
 	dbName := os.Getenv("DB_NAME")
 	dbUser := os.Getenv("DB_USER")
@@ -24,4 +31,14 @@ func MysqlConnection() *gorm.DB {
 	db.AutoMigrate()
 
 	return db
+}
+
+func CloseMysqlConnection(db *gorm.DB) {
+	dbSQL, err := db.DB()
+
+	if err != nil {
+		panic("Failed to close mysql connection")
+	}
+
+	dbSQL.Close()
 }
